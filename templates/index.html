@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block title %}Integrator{% endblock %}
+
+{% block page_content %}
+<div class="page-header">
+    <p>Current jobs</p>
+    <p>Count: {{ jobs|length }}</p>
+</div>
+<div class="col-md-4">
+    {{ wtf.quick_form(form) }}
+</div>
+<div class="jobs-list">
+    <ul id="jobs-list" class="nav nav-tabs">
+        {% for job in jobs %}
+        <li id="job-item"><a id="job-link" href='{{ job.details_link }}'>{{ job.title.decode('utf-8') }}</a></li>
+        {% endfor %}
+    </ul>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+{% endblock %}
