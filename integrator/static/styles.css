@@ -1,0 +1,18 @@
+#jobs-list {
+  columns: 100px 3;
+  -webkit-columns: 100px 3;
+  -moz-columns: 100px 3;
+}
+
+#job-item {
+    float: left;
+    width: 100%;
+}
+
+.form{
+    width:100%;
+}
+
+.jobs {
+    width:100%;
+}
