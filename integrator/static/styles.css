@@ -16,3 +16,23 @@
 .jobs {
     width:100%;
 }
+
+.form-control{
+    height: unset;
+}
+
+ul#skills_list{
+  columns: 50px 5;
+  -webkit-columns: 50px 5;
+  -moz-columns: 50px 5;
+  list-style-type: none;
+}
+
+ul#skills_list li{
+    float: left;
+    width: 100%;
+}
+
+.jobs-list-inside{
+    display: none;
+}

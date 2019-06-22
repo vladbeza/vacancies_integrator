@@ -2,7 +2,7 @@
 import re
 
 from flask import render_template, Blueprint
-from integrator.forms import FilterJobsForm
+from integrator.forms import FilterJobsForm, SkillsForm
 from integrator.models import Job
 
 jobs = Blueprint('jobs', __name__)
@@ -20,10 +20,20 @@ def render_jobs(active):
         is_remote = form.remote_only.data
         known_salary = form.known_salary.data
         salary_more_than = form.salary_more.data
+        use_dou = form.use_dou_stats.data
+        use_djinni = form.use_djinni.data
 
         if is_remote:
             active_vacancies_query = active_vacancies_query.filter_by(
                 remote=True)
+
+        if not use_dou:
+            active_vacancies_query = active_vacancies_query.filter_by(
+                dou_id=None)
+
+        if not use_djinni:
+            active_vacancies_query = active_vacancies_query.filter_by(
+                djinni_id=None)
 
         if known_salary or salary_more_than:
             active_vacancies_query = active_vacancies_query.filter(
@@ -31,7 +41,7 @@ def render_jobs(active):
 
         if city != "Any":
             active_vacancies = active_vacancies_query.join(
-                Job.cities).filter_by(id=int(city))
+                Job.cities).filter_by(id=int(city)).all()
         else:
             active_vacancies = active_vacancies_query.all()
 
@@ -60,6 +70,44 @@ def index():
 @jobs.route("/history", methods=['GET', 'POST'])
 def history():
     return render_jobs(False)
+
+
+@jobs.route("/needed_skills", methods=['GET', 'POST'])
+def most_needed_skills():
+    form = SkillsForm()
+    if form.validate_on_submit():
+        skills_set = form.skills_list.data
+        start_date = form.from_date.data
+        end_date = form.to_date.data
+
+        vacancies_query = Job.query.filter(
+            Job.created >= start_date).filter(Job.created <= end_date).all()
+        skills_info = filter_by_skills_required(vacancies_query, skills_set)
+        return render_template('skills.html',
+                               skills_info=skills_info,
+                               form=form,
+                               scroll="skills")
+    else:
+        return render_template('skills.html',
+                               skills_info={},
+                               form=form,
+                               scroll=None)
+
+
+def filter_by_skills_required(jobs_list, skills):
+    result = {}
+    for skill in skills:
+        result[skill] = {"count": 0, "jobs": []}
+
+    for job in jobs_list:
+        full_desc = "{} {}".format(job.title.decode("utf-8").lower(),
+                                   job.description.lower())
+        for skill in skills:
+            skill_re = r'\b{}\b'.format(skill)
+            if re.search(skill_re, full_desc) is not None:
+                result[skill]["count"] += 1
+                result[skill]["jobs"].append(job)
+    return result
 
 
 def filter_by_salary(jobs_list, expected_salary):

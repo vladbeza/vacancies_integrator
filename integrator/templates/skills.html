@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block javascript %}
+    {{ super() }}
+{% endblock %}
+
+{% block title %}Integrator{% endblock %}
+
+{% block page_content %}
+<div class="page-header">
+    <p>Skills set most wanted</p>
+</div>
+<div class="form">
+    {{ wtf.quick_form(form) }}
+</div>
+<div class="skills_info">
+    <ul id="skills" class="nav nav-tabs">
+        {% for key, value in skills_info.items() %}
+        <li id="skill-item">
+            <a id="jobs-list-link" onclick="showJobs('{{key|safe}}');">{{ key }} - {{ value.count }}</a>
+            <div class='jobs-list-inside' id='{{ key }}'>
+                {% for job in value.jobs %}
+                <a id="job-link" href='{{ job.details_link }}'>{{ job.title.decode('utf-8') }}</a><br>
+                {% endfor %}
+            </div>
+        </li>
+        {% endfor %}
+    </ul>
+</div>
+
+{% if scroll %}
+    <script>
+        document.getElementById('{{ scroll }}').scrollIntoView();
+    </script>
+{% endif %}
+
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script src="{{ url_for('static',filename='checkAllBtn.js') }}"></script>
+{% endblock %}

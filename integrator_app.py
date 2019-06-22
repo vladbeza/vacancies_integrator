@@ -2,7 +2,7 @@
 
 from integrator import create_app, make_celery
 from integrator.models import db, City, Job
-from integrator.retrieve_info import gather_new_jobs_dou
+from integrator.retrieve_info_dou import gather_new_jobs_dou
 from flask_migrate import Migrate
 from integrator.scripts import remove_duplicates
 
