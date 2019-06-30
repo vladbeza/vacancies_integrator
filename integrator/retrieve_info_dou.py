@@ -42,8 +42,6 @@ def gather_new_jobs_dou():
                     c = City.query.filter_by(name=city).one_or_none()
                     if c:
                         job.cities.append(c)
-                    else:
-                        job.cities.append(another)
             else:
                 job.cities.append(another)
 
@@ -55,8 +53,7 @@ def gather_new_jobs_dou():
         if dou_job.dou_id not in all_vacancies_on_dou.keys():
             dou_job.active = False
             db.session.add(dou_job)
-
-    db.session.commit()
+            db.session.commit()
     print("finish gathering from dou")
 
 

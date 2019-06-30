@@ -2,6 +2,7 @@
 
 from integrator import create_app, make_celery
 from integrator.models import db, City, Job
+from integrator.retrieve_info_djinni import get_new_jobs_djinni
 from integrator.retrieve_info_dou import gather_new_jobs_dou
 from flask_migrate import Migrate
 from integrator.scripts import remove_duplicates
@@ -33,6 +34,11 @@ def gather_dou_jobs_task():
 
 
 @celery.task
+def gather_djinni_jobs_task():
+    get_new_jobs_djinni()
+
+
+@celery.task
 def remove_duplicates_task():
     remove_duplicates()
 
@@ -45,7 +51,11 @@ celery.conf.beat_schedule = {
     "remove_duplicates_task": {
             "task": "integrator_app.remove_duplicates_task",
             "schedule": 1800
-        }
+    },
+    "gather_djinni_task": {
+            "task": "integrator_app.gather_djinni_jobs_task",
+            "schedule": 3600
+    }
 }
 
 @app.shell_context_processor

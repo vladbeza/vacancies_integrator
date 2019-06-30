@@ -12,7 +12,7 @@ def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
     db.init_app(app)
-    db.create_all(app=app)
+    # db.create_all(app=app)
     bootstrap.init_app(app)
 
     for bp in blueprints:
@@ -25,8 +25,8 @@ def create_app():
 def make_celery(app):
     celery = Celery(
         app.import_name,
-        backend="redis://127.0.0.1:6379",
-        broker="redis://127.0.0.1:6379"
+        backend=Config.result_backend,
+        broker=Config.broker_url
     )
     celery.conf.update(app.config)
 

@@ -33,3 +33,4 @@ class Job(db.Model):
     active = db.Column(db.Boolean, default=True)
     remote = db.Column(db.Boolean, default=False)
     created = db.Column(db.DateTime(), default=datetime.utcnow)
+    djinni_id = db.Column(db.String(64), default=None)

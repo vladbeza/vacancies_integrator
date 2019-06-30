@@ -6,10 +6,13 @@ class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'hard to guess string'
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \
         'sqlite:///' + os.path.join(basedir, 'data.sqlite')
-    # CELERY_RESULT_BACKEND = "redis://localhost:6379"
-    # CELERY_BROKER_URL = "redis://localhost:6379"
+    result_backend = os.environ.get("CELERY_RESULT_BACKEND",
+                                    "redis://localhost:6379")
+    broker_url = os.environ.get("CELERY_BROKER_URL",
+                                       "redis://localhost:6379")
     DEBUG = True
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+
 
 location_translations = {"Харьков": ("харьков", "харків", "kharkiv", "kharkov"),
                         "Киев": ("киев", "київ", "kiyv", "kiev"),
@@ -34,5 +37,4 @@ skills = ["pytest", "big data", "machine learning", "junit", "unittest",
           "docker", "kubernetes", "python", "java", "js", "javascript",
           "c#", "typescript", "bash", "jira", ".net", "nightwatch.js",
           "rest", "soap", "golang", "nunit", "ruby", "scala", "rust",
-          "graphql"]
-
+          "graphql", "security"]
