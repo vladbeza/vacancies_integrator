@@ -83,10 +83,18 @@ def most_needed_skills():
         vacancies_query = Job.query.filter(
             Job.created >= start_date).filter(Job.created <= end_date).all()
         skills_info = filter_by_skills_required(vacancies_query, skills_set)
+        categories = sorted(skills_info.keys())
+        data = []
+        for skill in categories:
+            data.append({"name": skill,
+                         "y": skills_info[skill]["count"]})
+        series = [{"data": data}]
         return render_template('skills.html',
                                skills_info=skills_info,
                                form=form,
-                               scroll="skills")
+                               scroll="skills",
+                               categories=categories,
+                               series=series)
     else:
         return render_template('skills.html',
                                skills_info={},

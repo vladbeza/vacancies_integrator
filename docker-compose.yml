@@ -11,6 +11,8 @@ services:
     container_name: integrator_main
     ports:
     - "5000:5000"
+    volumes:
+    - ./data.sqlite:/home/integrator_proj/data.sqlite
     command: "gunicorn --bind :5000 integrator_app:app"
     links:
     - redis
@@ -20,6 +22,8 @@ services:
   celery:
     build: .
     container_name: integrator_celery
+    volumes:
+    - ./data.sqlite:/home/integrator_proj/data.sqlite
     command: "celery -A integrator_app.celery worker --concurrency=1"
     links:
     - redis
@@ -29,6 +33,8 @@ services:
   sceduler:
     build: .
     container_name: integrator_sceduler
+    volumes:
+    - ./data.sqlite:/home/integrator_proj/data.sqlite
     command: "celery -A integrator_app.celery beat --loglevel=INFO"
     links:
     - redis

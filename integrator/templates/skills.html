@@ -14,6 +14,9 @@
 <div class="form">
     {{ wtf.quick_form(form) }}
 </div>
+{% if categories %}
+    <div id="skills_chart" class="graph" style="width:100%; height:400px;"></div>
+{% endif %}
 <div class="skills_info">
     <ul id="skills" class="nav nav-tabs">
         {% for key, value in skills_info.items() %}
@@ -40,4 +43,13 @@
 {% block scripts %}
 {{ super() }}
 <script src="{{ url_for('static',filename='checkAllBtn.js') }}"></script>
+<script src="https://code.highcharts.com/highcharts.js"></script>
+<script src="{{ url_for('static',filename='addHistogram.js') }}"></script>
+{% if categories %}
+    <script>
+        var series = {{ series|tojson }};
+        var categories = {{ categories|tojson }};
+        addHistogram('Skills histogram', series, categories, 'Skill', 'Jobs count');
+    </script>
+{% endif %}
 {% endblock %}

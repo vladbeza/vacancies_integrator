@@ -48,9 +48,11 @@ def gather_new_jobs_dou():
             db.session.add(job)
             db.session.commit()
 
-    dou_vacancies = Job.query.filter(Job.dou_id is not None, Job.active is True).all()
+    dou_vacancies = Job.query.filter(Job.dou_id != None,
+                                     Job.active == True).all()
     for dou_job in dou_vacancies:
         if dou_job.dou_id not in all_vacancies_on_dou.keys():
+            print("Deactivate vacancy '{}'".format(dou_job.title))
             dou_job.active = False
             db.session.add(dou_job)
             db.session.commit()

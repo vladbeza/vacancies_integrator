@@ -45,7 +45,6 @@ def get_new_jobs_djinni():
 
     #get all data from details link
 
-    added_jibs_ids = []
     jobs_count = 0
     print("Gathered jobs - {}".format(len(job_links)))
     for link, title in job_links.items():
@@ -95,18 +94,18 @@ def get_new_jobs_djinni():
                         job.cities.append(c)
 
                 print("Add to db djinni {}".format(djinni_id))
-                added_jibs_ids.append(djinni_id)
                 db.session.add(job)
                 db.session.commit()
                 jobs_count += 1
 
-        djinni_vacancies = Job.query.filter(Job.dou_id is not None,
-                                         Job.active is True).all()
-        for job in djinni_vacancies:
-            if job.djinni_id not in added_jibs_ids:
-                job.active = False
-                db.session.add(job)
-                db.session.commit()
+    djinni_vacancies = Job.query.filter(Job.djinni_id != None,
+                                         Job.active == True).all()
+    for job in djinni_vacancies:
+        if job.details_link not in job_links.keys():
+            print("Deactivate vacancy '{}'".format(job.title))
+            job.active = False
+            db.session.add(job)
+            db.session.commit()
     print("finish gathering from djinni. Added: {}".format(jobs_count))
 
 

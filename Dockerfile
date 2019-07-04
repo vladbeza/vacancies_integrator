@@ -13,7 +13,7 @@ RUN pip install gunicorn
 
 COPY integrator integrator
 COPY migrations migrations
-COPY integrator_app.py config.py data.sqlite ./
+COPY integrator_app.py config.py ./
 
 # run-time configuration
 EXPOSE 5000
