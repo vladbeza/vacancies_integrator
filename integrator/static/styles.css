@@ -28,11 +28,17 @@ ul#skills_list{
   list-style-type: none;
 }
 
-ul#skills_list li{
+#skills {
+  columns: 50px 5;
+  -webkit-columns: 50px 5;
+  -moz-columns: 50px 5;
+}
+
+#skill-item {
     float: left;
     width: 100%;
 }
 
-.jobs-list-inside{
+.jobs_for_skill{
     display: none;
 }

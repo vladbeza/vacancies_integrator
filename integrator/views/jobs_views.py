@@ -111,10 +111,20 @@ def filter_by_skills_required(jobs_list, skills):
         full_desc = "{} {}".format(job.title.decode("utf-8").lower(),
                                    job.description.lower())
         for skill in skills:
-            skill_re = r'\b{}\b'.format(skill)
-            if re.search(skill_re, full_desc) is not None:
-                result[skill]["count"] += 1
-                result[skill]["jobs"].append(job)
+            if "/" in skill:
+                skills_list = skill.split("/")
+            else:
+                skills_list = [skill, ]
+
+            for skill_name in skills_list:
+                skill_re = r'\b{}\b'.format(skill_name)
+                if re.search(skill_re, full_desc) is not None:
+                    result[skill]["count"] += 1
+                    result[skill]["jobs"].append(
+                        {"title": job.title.decode("utf-8"),
+                         "details_link": job.details_link})
+                    break
+
     return result
 
 

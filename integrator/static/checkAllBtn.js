@@ -7,15 +7,29 @@ function selectAll() {
 };
 
 
-function showJobs(jobsListId) {
-    var jobsDivs = document.getElementsByClassName("jobs-list-inside");
-    Array.from(jobsDivs).forEach((jobDiv) => {
-        jobDiv.style.display = "none";
-    });
+function showJobs(skill, jobsList) {
+    console.log(skill);
+    console.log(jobsList);
+    var jobsP = document.getElementById("jobs_skill_title");
+    var jobsUl = document.getElementById("jobs-list");
+    var jobsDiv = document.getElementById("jobs_for_skill");
+    while(jobsUl.firstChild) jobsUl.removeChild(jobsUl.firstChild);
+    jobsP.textContent = "Jobs for " + skill;
+    for (var job in jobsList) {
+            var li = document.createElement("li");
+            var a = document.createElement("a");
 
-    var jobToShow = document.getElementById(jobsListId);
-    jobToShow.style.display = "block";
-}
+            li.setAttribute("id", "job-item");
+            a.setAttribute("id", "job-link");
+            a.setAttribute("href", jobsList[job].details_link);
+            a.textContent = jobsList[job].title;
+
+            li.appendChild(a);
+            jobsUl.appendChild(li);
+        };
+
+    jobsDiv.style.display = "block";
+};
 
 
 document.addEventListener('DOMContentLoaded', function(){

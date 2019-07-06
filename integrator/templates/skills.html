@@ -21,14 +21,14 @@
     <ul id="skills" class="nav nav-tabs">
         {% for key, value in skills_info.items() %}
         <li id="skill-item">
-            <a id="jobs-list-link" onclick="showJobs('{{key|safe}}');">{{ key }} - {{ value.count }}</a>
-            <div class='jobs-list-inside' id='{{ key }}'>
-                {% for job in value.jobs %}
-                <a id="job-link" href='{{ job.details_link }}'>{{ job.title.decode('utf-8') }}</a><br>
-                {% endfor %}
-            </div>
+            <a id="jobs-list-link" onclick="showJobs('{{ key }}', {{ value.jobs|safe }});">{{ key }} - {{ value.count }}</a>
         </li>
         {% endfor %}
+    </ul>
+</div>
+<div id="jobs_for_skill">
+    <p id="jobs_skill_title">
+    <ul id="jobs-list" class="nav nav-tabs">
     </ul>
 </div>
 
