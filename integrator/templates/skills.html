@@ -14,8 +14,11 @@
 <div class="form">
     {{ wtf.quick_form(form) }}
 </div>
-{% if categories %}
+{% if skills_categories %}
     <div id="skills_chart" class="graph" style="width:100%; height:400px;"></div>
+{% endif %}
+{% if month_categories %}
+    <div id="skills_timeseries" class="graph" style="width:100%; height:400px;"></div>
 {% endif %}
 <div class="skills_info">
     <ul id="skills" class="nav nav-tabs">
@@ -42,14 +45,21 @@
 
 {% block scripts %}
 {{ super() }}
-<script src="{{ url_for('static',filename='checkAllBtn.js') }}"></script>
+<script src="{{ url_for('static',filename='scriptsCommon.js') }}"></script>
 <script src="https://code.highcharts.com/highcharts.js"></script>
 <script src="{{ url_for('static',filename='addHistogram.js') }}"></script>
-{% if categories %}
+{% if skills_categories %}
     <script>
-        var series = {{ series|tojson }};
-        var categories = {{ categories|tojson }};
-        addHistogram('Skills histogram', series, categories, 'Skill', 'Jobs count');
+        var series = {{ skills_count_series|tojson }};
+        var categories = {{ skills_categories|tojson }};
+        addChart('Skills histogram', series, categories, 'Skill', 'Jobs count', 'column', 'skills_chart');
+    </script>
+{% endif %}
+{% if month_categories %}
+    <script>
+        var series = {{ month_skills_series|tojson }};
+        var categories = {{ month_categories|tojson }};
+        addChart('Skills timeseries', series, categories, 'Months', 'Jobs count', 'line', 'skills_timeseries');
     </script>
 {% endif %}
 {% endblock %}

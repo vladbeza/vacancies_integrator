@@ -29,6 +29,7 @@ function showJobs(skill, jobsList) {
         };
 
     jobsDiv.style.display = "block";
+    jobsDiv.scrollIntoView();
 };
 
 

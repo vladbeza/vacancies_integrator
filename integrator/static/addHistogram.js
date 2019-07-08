@@ -1,9 +1,40 @@
-function addHistogram(title, series, categories, xTitle, yTitle){
+function addChart(title, series, categories, xTitle, yTitle, chartType, divId){
+
+        if (chartType === "column")
+        {
+            var tooltip = {
+            headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+            pointFormat: '<tr><td style="padding:0">jobs count: </td>' +
+                '<td style="padding:0"><b>{point.y}</b></td></tr>',
+            footerFormat: '</table>',
+            shared: true,
+            useHTML: true
+           };
+
+           var plotOptions = {
+                column: {
+                    pointPadding: 0,
+                    borderWidth: 0,
+                    groupPadding: 0,
+                    shadow: false
+                }
+            };
+        }
+        else
+        {
+            var tooltip = {
+                crosshairs: true,
+                shared: true
+            };
+
+            var plotOptions = {};
+        }
+
 
         document.addEventListener('DOMContentLoaded', function () {
-            var myChart = Highcharts.chart("skills_chart", {
+            var myChart = Highcharts.chart(divId, {
         chart: {
-            type: 'column'
+            type: chartType
         },
         tooltip: {
                 crosshairs: true,
@@ -24,22 +55,8 @@ function addHistogram(title, series, categories, xTitle, yTitle){
                 text: yTitle
             }
         },
-        tooltip: {
-            headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
-            pointFormat: '<tr><td style="padding:0">jobs count: </td>' +
-                '<td style="padding:0"><b>{point.y}</b></td></tr>',
-            footerFormat: '</table>',
-            shared: true,
-            useHTML: true
-           },
-        plotOptions: {
-                column: {
-                    pointPadding: 0,
-                    borderWidth: 0,
-                    groupPadding: 0,
-                    shadow: false
-                }
-        },
+        tooltip: tooltip,
+        plotOptions: plotOptions,
         series: series
         });
     });

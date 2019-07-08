@@ -1,9 +1,11 @@
 # -*- coding:utf-8 -*-
 import re
 
+from datetime import datetime
 from flask import render_template, Blueprint
 from integrator.forms import FilterJobsForm, SkillsForm
 from integrator.models import Job
+from integrator.utils import create_dates_range, group_by_month_and_get_series
 
 jobs = Blueprint('jobs', __name__)
 
@@ -83,23 +85,52 @@ def most_needed_skills():
         vacancies_query = Job.query.filter(
             Job.created >= start_date).filter(Job.created <= end_date).all()
         skills_info = filter_by_skills_required(vacancies_query, skills_set)
-        categories = sorted(skills_info.keys())
-        data = []
-        for skill in categories:
-            data.append({"name": skill,
-                         "y": skills_info[skill]["count"]})
-        series = [{"data": data}]
+        skills_categories = sorted(skills_info.keys())
+
+        month_categories,\
+        month_skills_series = prepare_data_for_skills_timeseries(
+            skills_info, start_date, end_date
+        )
+
         return render_template('skills.html',
                                skills_info=skills_info,
                                form=form,
                                scroll="skills",
-                               categories=categories,
-                               series=series)
+                               skills_categories=skills_categories,
+                               skills_count_series=prepare_data_for_skills_histogram(
+                                   skills_categories,
+                                   skills_info),
+                               month_categories=month_categories,
+                               month_skills_series=month_skills_series)
     else:
         return render_template('skills.html',
                                skills_info={},
                                form=form,
                                scroll=None)
+
+
+def prepare_data_for_skills_timeseries(skills_info,
+                                       start_date,
+                                       end_date):
+    dates_range = create_dates_range(start_date, end_date)
+    categories = [month.strftime("%b %y") for month in dates_range]
+
+    series = []
+    for skill, skill_data in skills_info.items():
+        dates = [datetime.strptime(j["date"], "%x") for j in skill_data["jobs"]]
+        series_data = group_by_month_and_get_series(dates, dates_range)
+        series.append({"name": skill,
+                       "data": series_data})
+    return categories, series
+
+
+def prepare_data_for_skills_histogram(categories, skills_info):
+    data = []
+    for skill in categories:
+        data.append({"name": skill,
+                     "y": skills_info[skill]["count"]})
+    series = [{"data": data}]
+    return series
 
 
 def filter_by_skills_required(jobs_list, skills):
@@ -122,7 +153,8 @@ def filter_by_skills_required(jobs_list, skills):
                     result[skill]["count"] += 1
                     result[skill]["jobs"].append(
                         {"title": job.title.decode("utf-8"),
-                         "details_link": job.details_link})
+                         "details_link": job.details_link,
+                         "date": job.created.strftime("%x")})
                     break
 
     return result
