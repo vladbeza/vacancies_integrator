@@ -3,6 +3,8 @@ import re
 
 from datetime import datetime
 from flask import render_template, Blueprint
+
+from config import languages
 from integrator.forms import FilterJobsForm, SkillsForm
 from integrator.models import Job
 from integrator.utils import create_dates_range, group_by_month_and_get_series
@@ -72,6 +74,36 @@ def index():
 @jobs.route("/history", methods=['GET', 'POST'])
 def history():
     return render_jobs(False)
+
+
+@jobs.route("/history/graphics", methods=['GET'])
+def more_graphics():
+    all_jobs = Job.query.all()
+
+    min_job_date, max_job_date = min(all_jobs, key=lambda x: x.created),\
+                         max(all_jobs, key=lambda x: x.created)
+
+    dates_range = create_dates_range(min_job_date.created,
+                                     max_job_date.created)
+    months_categories = [month.strftime("%b %y") for month in dates_range]
+
+    dates = [j.created for j in all_jobs]
+    series_data = group_by_month_and_get_series(dates, dates_range)
+    common_series = [{"name": "jobs",
+                      "data": series_data}]
+
+    language_series = []
+    for l in languages:
+        if l != "Any":
+            jobs = filter_language(all_jobs, l)
+            series_for_lang = group_by_month_and_get_series(
+                [j.created for j in jobs], dates_range)
+            language_series.append({"name": l, "data": series_for_lang})
+
+    return render_template("graphics.html",
+                           month_categories=months_categories,
+                           common_series=common_series,
+                           language_series=language_series)
 
 
 @jobs.route("/needed_skills", methods=['GET', 'POST'])

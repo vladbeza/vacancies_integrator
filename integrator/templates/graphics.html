@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block javascript %}
+    {{ super() }}
+{% endblock %}
+
+{% block title %}Integrator{% endblock %}
+
+{% block page_content %}
+<div class="page-header">
+    <p>Graphics</p>
+</div>
+<div id="main_graph" class="graph" style="width:100%; height:400px;"></div>
+<div id="by_lang_graph" class="graph" style="width:100%; height:400px;"></div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script src="https://code.highcharts.com/highcharts.js"></script>
+<script src="{{ url_for('static',filename='addHistogram.js') }}"></script>
+    <script>
+        var main_series = {{ common_series|tojson }};
+        var lang_series = {{ language_series|tojson }};
+        var categories = {{ month_categories|tojson }};
+        addChart('All jobs count', main_series, categories, 'Month', 'Count', 'line', 'main_graph');
+        addChart('Jobs by languages', lang_series, categories, 'Month', 'Count', 'line', 'by_lang_graph');
+    </script>
+{% endblock %}
