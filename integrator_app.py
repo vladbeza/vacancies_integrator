@@ -1,30 +1,14 @@
 # -*- coding:utf-8 -*-
 
 from integrator import create_app, make_celery
-from integrator.models import db, City, Job
+from integrator.models import db, City, Job, Language
 from integrator.retrieve_info_djinni import get_new_jobs_djinni
 from integrator.retrieve_info_dou import gather_new_jobs_dou
-from flask_migrate import Migrate
+from flask_migrate import Migrate, upgrade
 from integrator.scripts import remove_duplicates
-
-CITIES = ["Харьков", "Киев", "Одесса", "Львов", "Другой"]
 
 app = create_app()
 migrate = Migrate(app, db)
-
-with app.app_context():
-    for c in CITIES:
-        city = db.session.query(City).filter(City.name == c).first()
-        if city is None:
-            city = City(name=c)
-            db.session.add(city)
-            db.session.commit()
-
-    jobs = db.session.query(Job).all()
-    if not jobs:
-        gather_new_jobs_dou()
-
-
 celery = make_celery(app)
 
 
@@ -58,6 +42,23 @@ celery.conf.beat_schedule = {
     }
 }
 
+
 @app.shell_context_processor
 def make_shell_context():
-    return dict(db=db, City=City)
+    return dict(db=db, City=City, Language=Language, Job=Job)
+
+
+@app.cli.command()
+def deploy():
+    """Run deployment tasks."""
+    # migrate database to latest revision
+    upgrade()
+
+    City.add_cities()
+    Language.add_langs()
+
+    with app.app_context():
+        jobs = db.session.query(Job).all()
+        if not jobs:
+            gather_new_jobs_dou()
+            get_new_jobs_djinni()

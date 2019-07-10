@@ -1,3 +1,5 @@
+import re
+
 import pandas
 from datetime import datetime
 
@@ -26,7 +28,28 @@ def group_by_month_and_get_series(dates_list, period_range):
     return [int(d) for d in dates]
 
 
-group_by_month_and_get_series(dates_for_test,
-                              create_dates_range(
-                                datetime(2018, 1, 1),
-                                datetime(2020, 1, 1)))
+def add_automation(job_instance):
+    key_words = [r"\bautomation\b",
+                 r"\bin test\b",
+                 r"\bавтоматизация\b",
+                 r"\bавтоматизиронный\b"]
+    if any(re.search(word, job_instance.title.decode("utf-8").lower())
+                    is not None for word in key_words):
+        job_instance.is_automation = True
+
+
+def add_languages_used(languages, job_instance):
+    full_desc = "{} {}".format(
+        job_instance.title.decode("utf-8").lower(),
+        job_instance.description.encode("utf-8").decode("utf-8").lower())
+
+    for lang in languages:
+        if lang.name == "JavaScript":
+            langs = [r"\bjavascript\b", r"\bjs\b"]
+        elif lang.name == "C#":
+            langs = [r"\bc#\b", r"\b[.]net\b"]
+        else:
+            langs = [r"\b{}\b".format(lang.name.lower())]
+
+        if any(re.search(l, full_desc) for l in langs):
+            job_instance.languages.append(lang)

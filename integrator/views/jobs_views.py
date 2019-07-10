@@ -6,7 +6,7 @@ from flask import render_template, Blueprint
 
 from config import languages
 from integrator.forms import FilterJobsForm, SkillsForm
-from integrator.models import Job
+from integrator.models import Job, Language
 from integrator.utils import create_dates_range, group_by_month_and_get_series
 
 jobs = Blueprint('jobs', __name__)
@@ -27,9 +27,8 @@ def render_jobs(active):
         use_dou = form.use_dou_stats.data
         use_djinni = form.use_djinni.data
 
-        if is_remote:
-            active_vacancies_query = active_vacancies_query.filter_by(
-                remote=True)
+        active_vacancies_query = active_vacancies_query.filter_by(
+                remote=is_remote, is_automation=is_automation)
 
         if not use_dou:
             active_vacancies_query = active_vacancies_query.filter_by(
@@ -44,15 +43,14 @@ def render_jobs(active):
                 Job.salary != None)
 
         if city != "Any":
-            active_vacancies = active_vacancies_query.join(
-                Job.cities).filter_by(id=int(city)).all()
-        else:
-            active_vacancies = active_vacancies_query.all()
-
-        active_vacancies = filter_automation(active_vacancies, is_automation)
+            active_vacancies_query = active_vacancies_query.join(
+                Job.cities).filter_by(id=int(city))
 
         if language != "Any":
-            active_vacancies = filter_language(active_vacancies, language)
+            active_vacancies_query = active_vacancies_query.join(
+                Job.languages).filter_by(id=int(language))
+
+        active_vacancies = active_vacancies_query.all()
 
         if salary_more_than:
             active_vacancies = filter_by_salary(active_vacancies,
@@ -93,12 +91,12 @@ def more_graphics():
                       "data": series_data}]
 
     language_series = []
+    languages = Language.query.all()
     for l in languages:
-        if l != "Any":
-            jobs = filter_language(all_jobs, l)
-            series_for_lang = group_by_month_and_get_series(
+        jobs = l.jobs
+        series_for_lang = group_by_month_and_get_series(
                 [j.created for j in jobs], dates_range)
-            language_series.append({"name": l, "data": series_for_lang})
+        language_series.append({"name": l.name, "data": series_for_lang})
 
     return render_template("graphics.html",
                            month_categories=months_categories,
@@ -202,27 +200,3 @@ def filter_by_salary(jobs_list, expected_salary):
                 result.append(job)
     return result
 
-
-def filter_automation(jobs_list, automation):
-    key_words = [r"\bautomation\b",
-                 r"\bin test\b",
-                 r"\bавтоматизация\b",
-                 r"\bавтоматизиронный\b"]
-    if automation:
-        return [job for job in jobs_list if
-                any(re.search(word, job.title.decode("utf-8").lower())
-                    is not None for word in key_words)]
-
-    return jobs_list
-
-
-def filter_language(jobs_list, language):
-    if language == "JavaScript":
-        langs = [r"\bjavascript\b", r"\bjs\b"]
-    else:
-        langs = [r"\b{}\b".format(language.lower())]
-
-    return [job for job in jobs_list if
-            any(re.search(l, job.title.decode("utf-8").lower()) for l in langs)
-            or any(re.search(l,
-                      job.description.lower()) for l in langs)]

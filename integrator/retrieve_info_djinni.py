@@ -4,7 +4,8 @@ import requests
 from bs4 import BeautifulSoup
 
 from config import location_translations
-from integrator.models import Job, City, db
+from integrator.models import Job, City, db, Language
+from integrator.utils import add_languages_used
 
 headers = {"User-Agent": "Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.131 Safari/537.36"}
 base_url = "https://djinni.co"
@@ -79,7 +80,8 @@ def get_new_jobs_djinni():
                           djinni_id=djinni_id,
                           description=description,
                           company=company,
-                          details_link=link)
+                          details_link=link,
+                          is_automation=True)
 
                 if not cities:
                     another = City.query.filter_by(name="Другой").first()
@@ -92,6 +94,9 @@ def get_new_jobs_djinni():
                     c = City.query.filter_by(name=city).one_or_none()
                     if c:
                         job.cities.append(c)
+
+                langs = Language.query.all()
+                add_languages_used(langs, job)
 
                 print("Add to db djinni {}".format(djinni_id))
                 db.session.add(job)

@@ -38,3 +38,5 @@ skills = ["pytest", "big data", "machine learning", "junit", "unittest",
           "c#/.net", "typescript", "bash", "jira", "nightwatch.js",
           "rest", "soap", "golang", "nunit", "ruby", "scala", "rust",
           "graphql", "security"]
+
+CITIES = ["Харьков", "Киев", "Одесса", "Львов", "Другой"]

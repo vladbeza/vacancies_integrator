@@ -2,9 +2,11 @@
 
 import re
 
-from integrator.models import db, Job, City
+from integrator.models import db, Job, City, Language
 import requests
 from bs4 import BeautifulSoup
+
+from integrator.utils import add_automation, add_languages_used
 
 all_jobs_list = "https://jobs.dou.ua/vacancies/?category={category}"
 all_jobs_city = "https://jobs.dou.ua/vacancies/?city={city}&category={category}"
@@ -44,6 +46,11 @@ def gather_new_jobs_dou():
                         job.cities.append(c)
             else:
                 job.cities.append(another)
+
+            add_automation(job)
+
+            langs = Language.query.all()
+            add_languages_used(langs, job)
 
             db.session.add(job)
             db.session.commit()
