@@ -1,4 +1,12 @@
 # -*- coding:utf-8 -*-
+import os
+
+from dotenv import load_dotenv
+
+dotenv_path = os.path.join(os.path.dirname(__file__), '.env')
+if os.path.exists(dotenv_path):
+    load_dotenv(dotenv_path)
+
 
 from integrator import create_app, make_celery
 from integrator.models import db, City, Job, Language
@@ -57,8 +65,8 @@ def deploy():
     City.add_cities()
     Language.add_langs()
 
-    with app.app_context():
-        jobs = db.session.query(Job).all()
-        if not jobs:
-            gather_new_jobs_dou()
-            get_new_jobs_djinni()
+    # with app.app_context():
+    #     jobs = db.session.query(Job).all()
+    #     if not jobs:
+    #         gather_new_jobs_dou()
+    #         get_new_jobs_djinni()

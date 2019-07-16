@@ -123,7 +123,7 @@ def _get_links_from_page(page_content):
     for job_title in jobs_list:
         on_page += 1
         profile = job_title.find("a", {"class": "profile"})
-        result[base_url + profile.get("href")] = profile.text.encode("utf-8")
+        result[base_url + profile.get("href")] = profile.text
     print("on page - {}".format(on_page))
     return result
 

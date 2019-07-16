@@ -2,14 +2,25 @@
 import re
 
 from datetime import datetime
-from flask import render_template, Blueprint
+from flask import render_template, Blueprint, current_app
+from flask_sqlalchemy import get_debug_queries
 
-from config import languages
 from integrator.forms import FilterJobsForm, SkillsForm
 from integrator.models import Job, Language
 from integrator.utils import create_dates_range, group_by_month_and_get_series
 
 jobs = Blueprint('jobs', __name__)
+
+
+@jobs.after_app_request
+def after_request(response):
+    for query in get_debug_queries():
+        if query.duration >= current_app.config['FLASKY_SLOW_DB_QUERY_TIME']:
+            current_app.logger.warning(
+                'Slow query: %s\nParameters: %s\nDuration: %fs\nContext: %s\n'
+                % (query.statement, query.parameters, query.duration,
+                   query.context))
+    return response
 
 
 def render_jobs(active):
@@ -169,7 +180,7 @@ def filter_by_skills_required(jobs_list, skills):
         result[skill] = {"count": 0, "jobs": []}
 
     for job in jobs_list:
-        full_desc = "{} {}".format(job.title.decode("utf-8").lower(),
+        full_desc = "{} {}".format(job.title.lower(),
                                    job.description.lower())
         for skill in skills:
             if "/" in skill:
@@ -182,7 +193,7 @@ def filter_by_skills_required(jobs_list, skills):
                 if re.search(skill_re, full_desc) is not None:
                     result[skill]["count"] += 1
                     result[skill]["jobs"].append(
-                        {"title": job.title.decode("utf-8"),
+                        {"title": job.title,
                          "details_link": job.details_link,
                          "date": job.created.strftime("%x")})
                     break

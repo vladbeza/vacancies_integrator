@@ -3,41 +3,75 @@ services:
   redis:
     image: 'redis'
     container_name: integrator_redis
+    restart: always
     ports:
     - '6379:6379'
+    networks:
+    - integrator
 
-  webapp:
+  integrator_app:
     build: .
     container_name: integrator_main
+    restart: always
     ports:
     - "5000:5000"
     volumes:
-    - ./data.sqlite:/home/integrator_proj/data.sqlite
-    command: "gunicorn --bind :5000 integrator_app:app"
-    links:
-    - redis
+    - ./tmp/logs:/home/integrator_proj/logs
+    command: "./start_app.sh"
+    networks:
+    - integrator
     depends_on:
     - redis
+    - postgresql
 
-  celery:
-    build: .
-    container_name: integrator_celery
+  postgresql:
+    restart: always
+    image: 'postgres:11'
+    container_name: integrator_postgres
+    ports:
+    - "5432:5432"
+    env_file:
+      .env-postgres
     volumes:
-    - ./data.sqlite:/home/integrator_proj/data.sqlite
-    command: "celery -A integrator_app.celery worker --concurrency=1"
-    links:
-    - redis
-    depends_on:
-    - redis
+    - ./data:/var/lib/postgresql/data
+    networks:
+    - integrator
 
-  sceduler:
-    build: .
-    container_name: integrator_sceduler
-    volumes:
-    - ./data.sqlite:/home/integrator_proj/data.sqlite
-    command: "celery -A integrator_app.celery beat --loglevel=INFO"
-    links:
-    - redis
+  nginx:
+    restart: always
+    build: ./nginx
+    networks:
+    - integrator
+    expose:
+    - 8080
+    ports:
+    - "8080:8080"
     depends_on:
-    - redis
-    - celery
+    - integrator_app
+
+networks:
+  integrator:
+    driver: bridge
+
+#  celery:
+#    build: .
+#    container_name: integrator_celery
+#    volumes:
+#    - ./data.sqlite:/home/integrator_proj/data.sqlite
+#    command: "celery -A integrator_app.celery worker --concurrency=1"
+#    networks:
+#    - integrator
+#    depends_on:
+#    - redis
+#
+#  sceduler:
+#    build: .
+#    container_name: integrator_sceduler
+#    volumes:
+#    - ./data.sqlite:/home/integrator_proj/data.sqlite
+#    command: "celery -A integrator_app.celery beat --loglevel=INFO"
+#    networks:
+#    - integrator
+#    depends_on:
+#    - redis
+#    - celery

@@ -14,7 +14,6 @@ def create_dates_range(min_date, max_date):
     period_range = pandas.period_range(ranges_dates.index.min(),
                                        ranges_dates.index.max(),
                                        freq='m')
-    print([i for i in period_range])
     return period_range
 
 
@@ -40,8 +39,8 @@ def add_automation(job_instance):
 
 def add_languages_used(languages, job_instance):
     full_desc = "{} {}".format(
-        job_instance.title.decode("utf-8").lower(),
-        job_instance.description.encode("utf-8").decode("utf-8").lower())
+        job_instance.title.lower(),
+        job_instance.description.lower())
 
     for lang in languages:
         if lang.name == "JavaScript":

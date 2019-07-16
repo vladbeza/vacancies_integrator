@@ -14,7 +14,7 @@
 <div class="jobs">
     <ul id="jobs-list" class="nav nav-tabs">
         {% for job in jobs %}
-        <li id="job-item"><a id="job-link" href='{{ job.details_link }}'>{{ job.title.decode('utf-8') }} {{ job.salary if job.salary is not none}}</a></li>
+        <li id="job-item"><a id="job-link" href='{{ job.details_link }}'>{{ job.title }} {{ job.salary if job.salary is not none}}</a></li>
         {% endfor %}
     </ul>
 </div>
