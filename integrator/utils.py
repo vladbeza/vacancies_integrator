@@ -46,7 +46,7 @@ def add_languages_used(languages, job_instance):
         if lang.name == "JavaScript":
             langs = [r"\bjavascript\b", r"\bjs\b"]
         elif lang.name == "C#":
-            langs = [r"\bc#\b", r"\b[.]net\b"]
+            langs = [r" c#", r" \.net\b"]
         else:
             langs = [r"\b{}\b".format(lang.name.lower())]
 
