@@ -189,7 +189,10 @@ def filter_by_skills_required(jobs_list, skills):
                 skills_list = [skill, ]
 
             for skill_name in skills_list:
-                skill_re = r'\b{}\b'.format(skill_name)
+                if skill_name.isalpha():
+                    skill_re = r'\b{}\b'.format(skill_name)
+                else:
+                    skill_re = r' {}'.format(skill_name)
                 if re.search(skill_re, full_desc) is not None:
                     result[skill]["count"] += 1
                     result[skill]["jobs"].append(
