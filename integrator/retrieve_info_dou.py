@@ -95,9 +95,11 @@ def get_vacancies(for_city=None, category="QA"):
 
     while current_vacancies_counter <= vacancies_count:
 
-        data = session.post(xhr_url,
-                            data={"csrfmiddlewaretoken": csrftoken, "count": current_vacancies_counter},
-                            headers=headers.update({"Referer": referer_url}))
+        data = session.post(
+            xhr_url,
+            data={"csrfmiddlewaretoken": csrftoken,
+                  "count": current_vacancies_counter},
+            headers=headers.update({"Referer": referer_url}))
 
         json_data = data.json()
 
@@ -113,7 +115,7 @@ def get_vacancies(for_city=None, category="QA"):
                 vacancy_data = {}
                 data = vacancy.find("a", {"class": "vt"})
 
-                vacancy_data["title"] = data.text.replace("\xa0", " ").encode("utf-8")
+                vacancy_data["title"] = data.text.replace("\xa0", " ")
                 vacancy_data["details_href"] = data.get("href")
                 try:
                     vacancy_data["cities"] = [city.strip().capitalize() for city in
