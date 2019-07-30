@@ -32,7 +32,7 @@ def add_automation(job_instance):
                  r"\bin test\b",
                  r"\bавтоматизация\b",
                  r"\bавтоматизиронный\b"]
-    if any(re.search(word, job_instance.title.decode("utf-8").lower())
+    if any(re.search(word, job_instance.title.lower())
                     is not None for word in key_words):
         job_instance.is_automation = True
 

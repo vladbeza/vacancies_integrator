@@ -134,7 +134,8 @@ def get_descriptions(vacancy):
     print("get description for {}".format(vacancy))
     details_page = session.get(vacancy["details_href"]).content
     details_html = BeautifulSoup(details_page)
-    descriptions = details_html.find_all("div", {"class": "text b-typo vacancy-section"})
+    descriptions = details_html.find_all(
+        "div", {"class": "text b-typo vacancy-section"})
     # vacancy["description"] = "\n".join([desc.text.replace("\xa0", " ") for desc in descriptions])
     vacancy["description"] = descriptions[0].text.replace("\xa0", " ")
     salary = details_html.find("span", {"class": "salary"})
