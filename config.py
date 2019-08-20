@@ -39,6 +39,7 @@ skills = ["pytest", "big data", "machine learning", "junit", "unittest",
           "docker", "kubernetes", "python", "java", "javascript/js",
           "c#/.net", "typescript", "bash", "jira", "nightwatch.js",
           "rest", "soap", "golang", "nunit", "ruby", "scala", "rust",
-          "graphql", "security", "katalon studio"]
+          "graphql", "security", "katalon studio", "webdriverio", "testcafe",
+          "aerokube"]
 
 CITIES = ["Харьков", "Киев", "Одесса", "Львов", "Другой"]

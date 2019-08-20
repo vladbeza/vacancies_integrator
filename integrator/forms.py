@@ -38,7 +38,8 @@ class MultiCheckboxField(SelectMultipleField):
 
 class SkillsForm(FlaskForm):
 
-    skills_list = MultiCheckboxField("Skills", choices=[(s, s) for s in skills])
+    skills_list = MultiCheckboxField("Skills", choices=[(s, s) for s in
+                                                        sorted(skills)])
     from_date = DateTimeField('Start Date',
                           format='%m/%d/%Y',
                           default=datetime.today() - timedelta(days=30))
