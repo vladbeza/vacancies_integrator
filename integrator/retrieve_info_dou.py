@@ -24,36 +24,47 @@ def gather_new_jobs_dou():
     all_vacancies_on_dou = get_vacancies()
     print("all_vacancies_on_dou got")
     for vacancy_id, vacancy_info in all_vacancies_on_dou.items():
-        job_request = Job.query.filter_by(dou_id=vacancy_id).first()
-        if not job_request:
-            get_descriptions(vacancy_info)
-            job = Job(title=vacancy_info["title"],
-                      dou_id=vacancy_id,
-                      description=vacancy_info["description"],
-                      company=vacancy_info["company_href"],
-                      details_link=vacancy_info["details_href"],
-                      salary=vacancy_info.get("salary", None))
+        job_request = db.session.query(Job).filter_by(dou_id=vacancy_id).first()
 
-            cities = vacancy_info.get("cities", None)
-            another = City.query.filter_by(name="Другой").first()
-            if cities is not None:
-                for city in cities:
-                    if city in ("Удаленно", "Remote"):
-                        job.remote = True
-                        continue
-                    c = City.query.filter_by(name=city).one_or_none()
-                    if c:
-                        job.cities.append(c)
-            else:
-                job.cities.append(another)
+        if job_request and job_request.active:
+            continue
 
-            add_automation(job)
-
-            langs = Language.query.all()
-            add_languages_used(langs, job)
-
-            db.session.add(job)
+        elif job_request and not job_request.active:
+            print("Try to delete inactive dou vacancy {}. Dou id {}".format(
+                job_request.title, vacancy_id))
+            db.session.delete(job_request)
             db.session.commit()
+
+        get_descriptions(vacancy_info)
+        job = Job(title=vacancy_info["title"],
+                  dou_id=vacancy_id,
+                  description=vacancy_info["description"],
+                  company=vacancy_info["company_href"],
+                  details_link=vacancy_info["details_href"],
+                  salary=vacancy_info.get("salary", None))
+
+        cities = vacancy_info.get("cities", None)
+        another = City.query.filter_by(name="Другой").first()
+        if cities is not None:
+            for city in cities:
+                if city in ("Удаленно", "Remote"):
+                    job.remote = True
+                    continue
+                c = City.query.filter_by(name=city).one_or_none()
+                if c:
+                    job.cities.append(c)
+        else:
+            job.cities.append(another)
+
+        add_automation(job)
+
+        langs = Language.query.all()
+        add_languages_used(langs, job)
+
+        print("Add new dou job. Title {} id {}".format(job.title,
+                                                       job.dou_id))
+        db.session.add(job)
+        db.session.commit()
 
     dou_vacancies = Job.query.filter(Job.dou_id != None,
                                      Job.active == True).all()
@@ -121,6 +132,8 @@ def get_vacancies(for_city=None, category="QA"):
                     vacancy_data["cities"] = [city.strip().capitalize() for city in
                                           vacancy.find("span", {"class": "cities"}).text.split(",")]
                 except AttributeError:
+                    print("CITIES: cities not found for {}".format(
+                        vacancy_data["title"]))
                     pass
                 vacancy_data["company_href"] = vacancy.find("a", {"class": "company"}).get("href")
                 vacancies[identifier] = vacancy_data

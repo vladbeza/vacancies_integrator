@@ -42,3 +42,7 @@ ul#skills_list{
 .jobs_for_skill{
     display: none;
 }
+
+a.active{
+    text-decoration: underline;
+}

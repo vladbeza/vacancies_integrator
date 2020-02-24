@@ -126,7 +126,3 @@ def _get_links_from_page(page_content):
         result[base_url + profile.get("href")] = profile.text
     print("on page - {}".format(on_page))
     return result
-
-
-if __name__ == "__main__":
-    get_new_jobs_djinni()

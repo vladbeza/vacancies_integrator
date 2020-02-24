@@ -2,12 +2,13 @@
 import re
 
 from datetime import datetime
-from flask import render_template, Blueprint, current_app
+from flask import render_template, Blueprint, current_app, request
 from flask_sqlalchemy import get_debug_queries
 
 from integrator.forms import FilterJobsForm, SkillsForm
 from integrator.models import Job, Language
 from integrator.utils import create_dates_range, group_by_month_and_get_series
+from config import CITIES, languages
 
 jobs = Blueprint('jobs', __name__)
 
@@ -87,7 +88,11 @@ def history():
 
 @jobs.route("/history/graphics", methods=['GET'])
 def more_graphics():
-    all_jobs = Job.query.all()
+    city = request.args.get('city')
+    if city is not None:
+        all_jobs = Job.query.join(Job.cities).filter_by(name=city).all()
+    else:
+        all_jobs = Job.query.all()
 
     min_job_date, max_job_date = min(all_jobs, key=lambda x: x.created),\
                          max(all_jobs, key=lambda x: x.created)
@@ -102,14 +107,18 @@ def more_graphics():
                       "data": series_data}]
 
     language_series = []
-    languages = Language.query.all()
+    # languages = Language.query.all()
     for l in languages:
-        jobs = l.jobs
+        jobs_query = Job.query.join(Job.languages).filter_by(name=l)
+        if city is not None:
+            jobs_query = jobs_query.join(Job.cities).filter_by(name=city)
+        jobs = jobs_query.all()
         series_for_lang = group_by_month_and_get_series(
                 [j.created for j in jobs], dates_range)
-        language_series.append({"name": l.name, "data": series_for_lang})
+        language_series.append({"name": l, "data": series_for_lang})
 
     return render_template("graphics.html",
+                           cities=CITIES,
                            month_categories=months_categories,
                            common_series=common_series,
                            language_series=language_series)

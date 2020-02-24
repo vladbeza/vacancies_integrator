@@ -11,6 +11,27 @@
 <div class="page-header">
     <p>Graphics</p>
 </div>
+<div id="cities">
+    <ul class="nav navbar-nav">
+        {% if request.args.get('city') is none %}
+        <li><a class="active" href="{{ url_for('jobs.more_graphics') }}">All
+        </a></li>
+        {% else %}
+        <li><a href="{{ url_for('jobs.more_graphics') }}">All
+        </a></li>
+        {% endif %}
+    {% for city_item in cities %}
+        {% if request.args.get('city') == city_item %}
+        <li><a class="active"
+                              href="{{ url_for('jobs.more_graphics', city=city_item) }}">{{
+            city_item }}</a></li>
+        {% else %}
+        <li><a href="{{ url_for('jobs.more_graphics', city=city_item) }}">{{
+            city_item }}</a></li>
+        {% endif %}
+    {% endfor %}
+    </ul>
+</div>
 <div id="main_graph" class="graph" style="width:100%; height:400px;"></div>
 <div id="by_lang_graph" class="graph" style="width:100%; height:400px;"></div>
 {% endblock %}
