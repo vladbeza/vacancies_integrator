@@ -3,7 +3,8 @@ import os
 
 from dotenv import load_dotenv
 
-dotenv_path = os.path.join(os.path.dirname(__file__), '.env')
+dotenv_path = os.path.join(os.path.dirname(__file__),
+                           os.environ.get("ENV_FILE") or ".env")
 if os.path.exists(dotenv_path):
     load_dotenv(dotenv_path)
 
@@ -56,7 +57,7 @@ def make_shell_context():
     return dict(db=db, City=City, Language=Language, Job=Job)
 
 
-@app.cli.command()
+# @app.cli.command()
 def deploy():
     """Run deployment tasks."""
     # migrate database to latest revision
@@ -65,8 +66,8 @@ def deploy():
     City.add_cities()
     Language.add_langs()
 
-    # with app.app_context():
-    #     jobs = db.session.query(Job).all()
-    #     if not jobs:
-    #         gather_new_jobs_dou()
-    #         get_new_jobs_djinni()
+    with app.app_context():
+        jobs = db.session.query(Job).all()
+        if not jobs:
+            gather_new_jobs_dou()
+            get_new_jobs_djinni()

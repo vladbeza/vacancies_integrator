@@ -54,15 +54,15 @@ class Job(db.Model):
     __tablename__ = 'jobs'
 
     id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.Unicode(64))
-    dou_id = db.Column(db.String(64), default=None)
+    title = db.Column(db.Unicode(128))
+    dou_id = db.Column(db.String(128), default=None)
     description = db.Column(db.UnicodeText())
-    details_link = db.Column(db.String(64))
+    details_link = db.Column(db.String(128))
     cities = db.relationship("City",
                              secondary=locations,
                              backref=db.backref("jobs", lazy="dynamic"),
                              lazy="dynamic")
-    company = db.Column(db.String(64))
+    company = db.Column(db.String(128))
     salary = db.Column(db.String(64), default=None)
     active = db.Column(db.Boolean, default=True)
     remote = db.Column(db.Boolean, default=False)

@@ -1,0 +1,54 @@
+version: '3'
+services:
+  postgresql:
+    restart: always
+    image: 'postgres'
+    container_name: integrator_test_postgres
+    ports:
+    - "5433:5432"
+    expose: 
+    - 5433
+    env_file:
+        .env-postgres-test
+    networks:
+    - integrator_test
+
+  redis:
+    image: 'redis'
+    container_name: integrator_redis_test
+    restart: always
+    ports:
+    - '6380:6379'
+    networks:
+    - integrator_test
+
+  nginx:
+    restart: always
+    build: ./nginx
+    networks:
+    - integrator_test
+    expose:
+    - 8090
+    ports:
+    - "8090:8080"
+    depends_on:
+    - integrator_app
+
+  integrator_app:
+    build:
+      context: ../..
+      dockerfile: Dockerfile_test
+    container_name: integrator_main_test
+    restart: always
+    ports:
+    - "5000:5000"
+    command: "./start_app.sh"
+    networks:
+    - integrator_test
+    depends_on:
+    - redis
+    - postgresql
+
+networks:
+    integrator_test:
+        driver: bridge

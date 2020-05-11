@@ -1,8 +1,8 @@
 FROM python:3.7
 
 ENV FLASK_APP integrator_app.py
-ENV FLASK_CONFIG production
-ENV ENV_FILE .env
+ENV FLASK_CONFIG test
+ENV ENV_FILE .env_test
 
 WORKDIR /home/integrator_proj
 
@@ -12,6 +12,8 @@ RUN pip install gunicorn
 
 COPY integrator integrator
 COPY migrations migrations
-COPY integrator_app.py config.py start_app.sh '.env' ./
+COPY integrator_app.py config.py start_app.sh '.env_test' ./
 
 RUN chmod +x ./start_app.sh
+
+EXPOSE 5000

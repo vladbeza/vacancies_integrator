@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import os
 basedir = os.path.abspath(os.path.dirname(__file__))
 
@@ -14,6 +15,7 @@ class Config:
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_RECORD_QUERIES = True
     FLASKY_SLOW_DB_QUERY_TIME = 1
+    FLASK_CONFIG = os.environ.get('FLASK_CONFIG')
 
 
 location_translations = {"Харьков": ("харьков", "харків", "kharkiv", "kharkov"),

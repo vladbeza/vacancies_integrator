@@ -16,26 +16,25 @@ services:
     ports:
     - "5000:5000"
     volumes:
-    - ./tmp/logs:/home/integrator_proj/logs
+    - ./data.sqlite:/home/integrator_proj/data.sqlite
     command: "./start_app.sh"
     networks:
     - integrator
     depends_on:
     - redis
-    - postgresql
 
-  postgresql:
-    restart: always
-    image: 'postgres:11'
-    container_name: integrator_postgres
-    ports:
-    - "5432:5432"
-    env_file:
-      .env-postgres
-    volumes:
-    - integrator_volume:/var/lib/postgresql/data
-    networks:
-    - integrator
+#  postgresql:
+#    restart: always
+#    image: 'postgres:11'
+#    container_name: integrator_postgres
+#    ports:
+#    - "5432:5432"
+#    env_file:
+#      .env-postgres
+#    volumes:
+#    - integrator_volume:/var/lib/postgresql/data
+#    networks:
+#    - integrator
 
 #  pgbackups:
 #    image: prodrigestivill/postgres-backup-local
@@ -47,7 +46,7 @@ services:
 #    depends_on:
 #      - postgresql
 #    env_file:
-#      .env-postgres
+#      .env-postgres-test
 #    environment:
 #      - POSTGRES_EXTRA_OPTS=-Z9 --schema=public --blobs
 #      - SCHEDULE=@daily
@@ -71,10 +70,6 @@ services:
 networks:
   integrator:
     driver: bridge
-
-volumes:
-  integrator_volume:
-     external: true
 
 #  celery:
 #    build: .
