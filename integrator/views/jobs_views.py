@@ -1,12 +1,13 @@
 # -*- coding:utf-8 -*-
 import re
+import json
 
 from datetime import datetime
-from flask import render_template, Blueprint, current_app, request
+from flask import render_template, Blueprint, current_app, request, abort, jsonify
 from flask_sqlalchemy import get_debug_queries
 
 from integrator.forms import FilterJobsForm, SkillsForm
-from integrator.models import Job, Language
+from integrator.models import Job, Language, db, City
 from integrator.utils import create_dates_range, group_by_month_and_get_series
 from config import CITIES, languages
 
@@ -40,7 +41,11 @@ def render_jobs(active):
         use_djinni = form.use_djinni.data
 
         active_vacancies_query = active_vacancies_query.filter_by(
-                remote=is_remote, is_automation=is_automation)
+            is_automation=is_automation)
+        
+        if is_remote:
+            active_vacancies_query = active_vacancies_query.filter_by(
+                remote=is_remote)
 
         if not use_dou:
             active_vacancies_query = active_vacancies_query.filter_by(
@@ -84,6 +89,46 @@ def index():
 @jobs.route("/history", methods=['GET', 'POST'])
 def history():
     return render_jobs(False)
+
+@jobs.route("/api/v1.0/create", methods=['POST'])
+def api_create_job():
+    if not request.json:
+        response = jsonify({'error': 'bad request. No data provided. Request {}'.format(request)})
+        response.status_code = 400
+        print("API response is {}".format(response))
+        return response
+
+    print("Creating job with data {}".format(request.json))
+
+    job = Job(title=request.json["title"],
+              djinni_id=request.json.get("djinni_id", None),
+              description=request.json["description"],
+              company=request.json["company"],
+              details_link=request.json["details_link"],
+              is_automation=request.json["is_automation"],
+              dou_id=request.json.get("dou_id", None),
+              salary=request.json["salary"],
+              active=request.json["active"],
+              remote=request.json["remote"]
+              )
+
+    if request.json.get("cities") is not None:
+        for city_name in request.json.get("cities"):
+            city = City.query.filter_by(name=city_name).first()
+            job.cities.append(city)
+    
+    if request.json.get("languages") is not None:
+        for lang_name in request.json.get("languages"):
+            lang = Language.query.filter_by(name=lang_name).first()
+            job.languages.append(lang)
+
+    db.session.add(job)
+    db.session.commit()
+
+    response = jsonify({'message': 'succeed'})
+    response.status_code = 201
+    print("API response is {}".format(response))
+    return response
 
 
 @jobs.route("/history/graphics", methods=['GET'])

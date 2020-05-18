@@ -1,49 +1,37 @@
 const pg = require('pg');
 
+const dbParameters = {
+    host: 'localhost',
+    port: 5433,
+    user: 'integrator_test',
+    password: 'Qaz123wsx',
+    database: 'integrator_test_db'
+  }
+
+
 class DBConnector {
-
-    constructor(){
-        this.client = new pg.Client({
-            host: 'localhost',
-            port: 5433,
-            user: 'integrator_test',
-            password: 'Qaz123wsx',
-            database: 'integrator_test_db'
-          })
-     }
     
-    clear_jobs(){
-        return this.make_request("DELETE * FROM jobs;");
+    async clear_jobs(){
+        await this.make_request("DELETE FROM locations;");
+        await this.make_request("DELETE FROM programm_langs_in_job;");
+        await this.make_request("DELETE FROM jobs;");
     }
 
-    list_cities(){
-        return this.make_request("SELECT * FROM cities;");
-    }
-
-    add_job(title, salary, dou_id, djinni_id,
-            details_link, description, company,
-            created=nil, active=true,
-            remove=false, is_automation=true){
-        return this.make_request(`INSERT INTO jobs
-             (title, dou_id, description, details_link,
-              company, salary, active, remote, created,
-             djinni_id, is_automation) 
-             VALUES ();`)
-
-    }
-
-    make_request(requestString){
-        this.client.connect()
-        return this.client
-            .query(requestString)
-            .then((res) => console.log(res))
-            .catch((error) => console.log(error))
-            .then(() => this.client.end())
+    async make_request(requestString){
+        const client = new pg.Client(dbParameters)
+        await client.connect()
+        try{
+            const res = await client.query(requestString)
+            return res
+        }
+        catch (error){
+            console.log("Couldn't make request.")
+            console.log(error)
+        }
+        finally{
+            await client.end()
+        }
     }
 }
-
-const connector = new DBConnector()
-connector.list_cities()
-    
 
 module.exports = new DBConnector();
