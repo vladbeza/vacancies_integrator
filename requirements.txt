@@ -16,7 +16,7 @@ idna==2.8
 itsdangerous==1.1.0
 Jinja2==2.10.1
 kombu==4.5.0
-Mako==1.0.10
+Mako==1.2.2
 MarkupSafe==1.1.1
 python-dateutil==2.8.0
 python-editor==1.0.4
